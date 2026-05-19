@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automata | Recursion Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --accent: #bef264; /* Lime-300 */
+            --bg: #0a0a0a;
+        }
+
+        body { 
+            font-family: 'JetBrains Mono', monospace; 
+            background-color: var(--bg);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        #canvas-bg {
+            position: fixed;
+            top: 0; left: 0;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .math-font { font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+
+        .btn-lime {
+            background: var(--accent);
+            color: black;
+            font-weight: 900;
+            transition: all 0.2s ease;
+        }
+
+        .btn-lime:hover {
+            background: #d9f99d;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(190, 242, 100, 0.3);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-slide { animation: slideIn 0.4s ease-out forwards; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <canvas id="canvas-bg"></canvas>
+
+    <!-- MAIN MENU MODAL -->
+    <div id="choiceModal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md transition-all duration-500">
+        <div class="glass p-10 rounded-3xl max-w-xl w-full border-lime-300/20">
+            <header class="mb-8 text-center border-b border-white/10 pb-6">
+                <p class="text-lime-300 text-[10px] tracking-[0.4em] mb-2 uppercase">Laboratory Group Activity</p>
+                <h1 class="text-3xl font-black tracking-tighter mb-2">RECURSION_<span class="text-lime-300">LAB_04</span></h1>
+                <div class="grid grid-cols-2 gap-4 mt-4 text-[10px] text-slate-500 uppercase font-bold">
+                    <div class="text-left">AUTOMATA THEORY</div>
+                    <div class="text-right">FINALS_S2026</div>
+                </div>
+            </header>
+            
+            <div class="grid grid-cols-1 gap-4">
+                <button onclick="openApp('fibonacci')" class="glass p-5 rounded-2xl text-left hover:border-lime-300 transition-all group">
+                    <span class="block text-lg font-bold group-hover:text-lime-300 transition-colors uppercase">1. Fibonacci Numbers</span>
+                    <span class="text-[10px] text-slate-500 font-mono italic">F(n) = F(n-1) + F(n-2) | n > 2</span>
+                </button>
+                <button onclick="openApp('lucas')" class="glass p-5 rounded-2xl text-left hover:border-lime-300 transition-all group">
+                    <span class="block text-lg font-bold group-hover:text-lime-300 transition-colors uppercase">2. Lucas Numbers</span>
+                    <span class="text-[10px] text-slate-500 font-mono italic">L(n) = L(n-1) + L(n-2) | n > 2</span>
+                </button>
+                <button onclick="openApp('tribonacci')" class="glass p-5 rounded-2xl text-left hover:border-lime-300 transition-all group">
+                    <span class="block text-lg font-bold group-hover:text-lime-300 transition-colors uppercase">3. Tribonacci Numbers</span>
+                    <span class="text-[10px] text-slate-500 font-mono italic">T(n) = T(n-1) + T(n-2) + T(n-3) | n > 3</span>
+                </button>
+                <button onclick="window.close()" class="mt-4 text-center text-slate-600 hover:text-red-400 text-xs font-bold tracking-widest transition-colors uppercase">
+                    [ 4. Terminate_Session ]
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WORKSPACE -->
+    <div class="max-w-3xl w-full relative">
+        <button id="backBtn" onclick="showMenu()" class="hidden absolute -top-12 left-0 text-lime-300 font-bold flex items-center hover:text-white transition-colors text-xs tracking-widest">
+            << RETURN_TO_CORE_MENU
+        </button>
+
+        <div id="calculatorCard" class="hidden space-y-6">
+            <!-- Theory Section -->
+            <div class="glass p-8 rounded-3xl border-white/5">
+                <h3 class="text-lime-300 font-bold text-xs mb-2 tracking-[0.2em] uppercase" id="seqTypeLabel">Sequence_Type</h3>
+                <h2 class="text-3xl font-black mb-4 uppercase" id="seqTitle">Algorithm Name</h2>
+                
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <div class="w-full md:w-1/3 aspect-square bg-lime-300/10 rounded-2xl border border-lime-300/20 flex items-center justify-center text-5xl" id="seqIcon">
+                        <!-- Icon or image placeholder -->
+                        Σ
+                    </div>
+                    <div class="w-full md:w-2/3">
+                        <p class="text-slate-400 leading-relaxed text-sm" id="seqDescription">
+                            Loading sequence description...
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Section -->
+            <div class="glass p-8 rounded-3xl border-white/5">
+                <div class="flex flex-col space-y-4">
+                    <div class="flex flex-col">
+                        <label class="text-[10px] text-slate-500 font-bold mb-2 ml-1 tracking-widest">INPUT_NUMBER_OF_TERMS</label>
+                        <input type="number" id="numInput" placeholder="ENTER_VALUE" class="bg-black/50 border border-white/10 px-6 py-4 rounded-xl focus:border-lime-300 outline-none text-lime-300 font-black text-xl">
+                    </div>
+                    <button onclick="calculateSequence()" class="btn-lime w-full py-4 rounded-xl text-sm tracking-[0.2em]">GENERATE_SEQUENCE</button>
+                </div>
+
+                <!-- Result Display -->
+                <div id="resultArea" class="hidden mt-8 animate-slide">
+                    <div class="border-t border-white/10 pt-6">
+                        <h4 class="text-[10px] text-lime-300 font-bold mb-4 tracking-widest">OUTPUT_DATA_STREAM:</h4>
+                        <div id="sequenceOutput" class="bg-black/40 border border-lime-300/30 text-lime-100 p-6 rounded-2xl font-mono text-lg leading-loose break-all">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
+        <div class="glass max-w-xs w-full p-8 text-center rounded-3xl border-red-500/30">
+            <h3 class="text-xl font-bold text-red-500 uppercase tracking-tighter">Validation Error</h3>
+            <p id="errorText" class="text-slate-500 text-xs mt-2 font-mono italic"></p>
+            <button onclick="closeError()" class="mt-8 w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl font-bold transition-all border border-red-500/20">RETRY</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const sequenceData = {
+            fibonacci: {
+                title: "Fibonacci Numbers",
+                desc: "The Fibonacci sequence is defined by the recurrence relation where each number is the sum of the two preceding ones, starting from 0 and 1.",
+                min: 3,
+                formula: "F(n) = F(n-1) + F(n-2)",
+                icon: "Φ"
+            },
+            lucas: {
+                title: "Lucas Numbers",
+                desc: "Similar to Fibonacci, the Lucas sequence uses the same recursive formula but starts with seed values L(0)=2 and L(1)=1.",
+                min: 3,
+                formula: "L(n) = L(n-1) + L(n-2)",
+                icon: "Λ"
+            },
+            tribonacci: {
+                title: "Tribonacci Numbers",
+                desc: "The Tribonacci numbers are a generalization of the Fibonacci numbers where each term is the sum of the preceding three terms.",
+                min: 4,
+                formula: "T(n) = T(n-1) + T(n-2) + T(n-3)",
+                icon: "Δ"
+            }
+        };
+
+        let currentMode = '';
+
+        // BACKGROUND ANIMATION
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const mouse = { x: null, y: null };
+
+        window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = Array.from({ length: 60 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3
+            }));
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                
+                const dx = mouse.x - p.x;
+                const dy = mouse.y - p.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 150) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(190, 242, 100, ${0.4 - dist/150})`;
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                }
+                ctx.fillStyle = '#bef264';
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            requestAnimationFrame(animate);
+        }
+
+        initCanvas();
+        animate();
+        window.addEventListener('resize', initCanvas);
+
+        // UI NAVIGATION
+        function openApp(mode) {
+            currentMode = mode;
+            const data = sequenceData[mode];
+            
+            document.getElementById('choiceModal').classList.add('opacity-0', 'pointer-events-none', 'scale-110');
+            document.getElementById('backBtn').classList.remove('hidden');
+            document.getElementById('calculatorCard').classList.remove('hidden');
+            
+            document.getElementById('seqTitle').innerText = data.title;
+            document.getElementById('seqDescription').innerText = data.desc;
+            document.getElementById('seqTypeLabel').innerText = `RECURSION_LOGIC: ${data.formula}`;
+            document.getElementById('seqIcon').innerText = data.icon;
+            
+            // Clear previous
+            document.getElementById('numInput').value = '';
+            document.getElementById('resultArea').classList.add('hidden');
+        }
+
+        function showMenu() {
+            document.getElementById('choiceModal').classList.remove('opacity-0', 'pointer-events-none', 'scale-110');
+            document.getElementById('calculatorCard').classList.add('hidden');
+            document.getElementById('backBtn').classList.add('hidden');
+        }
+
+        function showError(txt) {
+            document.getElementById('errorText').innerText = txt;
+            document.getElementById('errorModal').classList.remove('hidden');
+        }
+
+        function closeError() { document.getElementById('errorModal').classList.add('hidden'); }
+
+        // COMPUTATION LOGIC
+        function calculateSequence() {
+            const n = parseInt(document.getElementById('numInput').value);
+            const data = sequenceData[currentMode];
+
+            if (isNaN(n) || n < data.min) {
+                return showError(`INVALID_INPUT: For ${data.title}, value must be ≥ ${data.min}`);
+            }
+
+            let result = [];
+            
+            if (currentMode === 'fibonacci') {
+                result = [0, 1];
+                for (let i = 2; i < n; i++) {
+                    result.push(result[i - 1] + result[i - 2]);
+                }
+            } else if (currentMode === 'lucas') {
+                result = [2, 1];
+                for (let i = 2; i < n; i++) {
+                    result.push(result[i - 1] + result[i - 2]);
+                }
+            } else if (currentMode === 'tribonacci') {
+                result = [0, 0, 1];
+                for (let i = 3; i < n; i++) {
+                    result.push(result[i - 1] + result[i - 2] + result[i - 3]);
+                }
+            }
+
+            const outputEl = document.getElementById('sequenceOutput');
+            const resultArea = document.getElementById('resultArea');
+            
+            resultArea.classList.remove('hidden');
+            outputEl.innerHTML = `<span class="text-lime-300 uppercase block mb-2 text-xs">The ${data.title} are:</span>` + result.join(', ');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automata | Algorithm Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --accent: #bef264; /* Lime-300 */
+            --bg: #0a0a0a;
+        }
+
+        body { 
+            font-family: 'JetBrains Mono', monospace; 
+            background-color: var(--bg);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .math-font { font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+
+        .btn-lime {
+            background: var(--accent);
+            color: black;
+            font-weight: 900;
+            transition: all 0.2s ease;
+        }
+
+        .btn-lime:hover {
+            background: #d9f99d;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(190, 242, 100, 0.3);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-slide { animation: slideIn 0.4s ease-out forwards; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <canvas id="canvas-bg"></canvas>
+
+    <div id="choiceModal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md transition-all duration-500">
+        <div class="glass p-10 rounded-3xl max-w-lg w-full border-lime-300/20">
+            <header class="mb-10 text-center">
+                <h1 class="text-4xl font-black tracking-tighter mb-2">
+                    ALGORITHMS_<span class="text-lime-300 text-3xl">AUTOMATA</span>
+                </h1>
+                <p class="text-slate-500 text-xs uppercase tracking-[0.3em]">Mathematical Workspace Selection</p>
+            </header>
+            
+            <div class="grid grid-cols-1 gap-6">
+                <button onclick="switchApp('division')" class="glass p-6 rounded-2xl text-left hover:border-lime-300 transition-all group">
+                    <span class="block text-xl font-bold group-hover:text-lime-300 transition-colors uppercase">Division Algorithm</span>
+                    <span class="text-xs text-slate-500 font-mono">Process: m = nq + r</span>
+                </button>
+                <button onclick="switchApp('euclidean')" class="glass p-6 rounded-2xl text-left hover:border-lime-300 transition-all group">
+                    <span class="block text-xl font-bold group-hover:text-lime-300 transition-colors uppercase">Euclidean Algorithm</span>
+                    <span class="text-xs text-slate-500 font-mono">Process: GCD & LCM Solver</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-3xl w-full relative">
+        <button id="backBtn" onclick="showMenu()" class="hidden absolute -top-12 left-0 text-lime-300 font-bold flex items-center hover:text-white transition-colors text-xs tracking-widest">
+            << BACK_TO_SYSTEM_MENU
+        </button>
+
+        <div id="cardDivision" class="hidden space-y-6">
+            <div class="glass p-8 rounded-3xl border-white/5">
+                <h3 class="text-lime-300 font-bold text-xs mb-4 tracking-[0.2em]">CORE_CONCEPT</h3>
+                <h2 class="text-2xl font-black mb-4">THE DIVISION ALGORITHM</h2>
+                <p class="text-slate-400 leading-relaxed text-sm">
+                    Let <span class="math-font">m</span> and <span class="math-font">n</span> be positive integers. There are non-negative integers <span class="math-font">q</span> and <span class="math-font">r</span>, where <span class="math-font">0 ≤ r < n</span>, such that:
+                </p>
+                <div class="my-6 text-center text-3xl font-bold text-lime-300 bg-lime-300/5 py-6 rounded-2xl border border-lime-300/20">
+                    m = nq + r
+                </div>
+            </div>
+
+            <div class="glass p-8 rounded-3xl border-white/5">
+                <div class="grid gap-4 sm:grid-cols-2 mb-6">
+                    <input type="number" id="div1" placeholder="INT_M" class="bg-black/50 border border-white/10 px-6 py-4 rounded-xl focus:border-lime-300 outline-none text-lime-300 font-bold">
+                    <input type="number" id="div2" placeholder="INT_N" class="bg-black/50 border border-white/10 px-6 py-4 rounded-xl focus:border-lime-300 outline-none text-lime-300 font-bold">
+                </div>
+                <button onclick="runDivision()" class="btn-lime w-full py-4 rounded-xl mb-8">EXECUTE_COMPUTE</button>
+
+                <div id="divResult" class="hidden animate-slide">
+                    <div class="bg-black/40 border border-lime-300/30 text-lime-300 text-3xl py-8 rounded-2xl text-center font-bold mb-4" id="divStep"></div>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-[10px] text-slate-500 uppercase tracking-tighter">
+                        <div class="bg-white/5 p-3 rounded-lg border border-white/5">Integers<b id="outInt" class="block text-sm text-white font-mono mt-1"></b></div>
+                        <div class="bg-white/5 p-3 rounded-lg border border-white/5">Dividend<b id="outM" class="block text-sm text-white font-mono mt-1"></b></div>
+                        <div class="bg-white/5 p-3 rounded-lg border border-white/5">Divisor<b id="outN" class="block text-sm text-white font-mono mt-1"></b></div>
+                        <div class="bg-white/5 p-3 rounded-lg border border-white/5">Quotient<b id="outQ" class="block text-sm text-white font-mono mt-1"></b></div>
+                        <div class="bg-white/5 p-3 rounded-lg border border-white/5">Remainder<b id="outR" class="block text-sm text-white font-mono mt-1"></b></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="cardEuclidean" class="hidden space-y-6">
+            <div class="glass p-8 rounded-3xl border-white/5">
+                <h3 class="text-lime-300 font-bold text-xs mb-4 tracking-[0.2em]">ITERATIVE_LOGIC</h3>
+                <h2 class="text-2xl font-black mb-4 uppercase">Euclidean Algorithm</h2>
+                <div class="font-mono text-sm text-slate-400 bg-black/40 p-5 rounded-2xl border border-white/5 mb-4">
+                    m = nq<sub>1</sub> + r<sub>1</sub><br>
+                    n = r<sub>1</sub>q<sub>2</sub> + r<sub>2</sub><br>
+                    ...<br>
+                    r<sub>N-1</sub> = r<sub>N</sub>q<sub>N</sub>
+                </div>
+                <p class="text-slate-400 text-sm">
+                    The last non-zero remainder <span class="text-lime-300">r<sub>N</sub></span> is the <span class="font-bold uppercase tracking-widest">gcd(m, n)</span>.
+                </p>
+            </div>
+
+            <div class="glass p-8 rounded-3xl">
+                <div class="grid gap-4 sm:grid-cols-2 mb-4">
+                    <input type="number" id="euc1" placeholder="VALUE_A" class="bg-black/50 border border-white/10 px-6 py-4 rounded-xl focus:border-lime-300 outline-none text-lime-300 font-bold">
+                    <input type="number" id="euc2" placeholder="VALUE_B" class="bg-black/50 border border-white/10 px-6 py-4 rounded-xl focus:border-lime-300 outline-none text-lime-300 font-bold">
+                </div>
+                <button onclick="runEuclidean()" class="btn-lime w-full py-4 rounded-xl">EXECUTE_SOLVE</button>
+
+                <div id="eucResult" class="mt-8 hidden animate-slide">
+                    <div id="eucSteps" class="font-mono text-xs space-y-2 bg-black/50 text-lime-100 p-6 rounded-2xl mb-4 max-h-48 overflow-y-auto border border-white/10"></div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-lime-300/10 p-4 rounded-xl border border-lime-300/20 text-center">
+                            <span class="text-[10px] text-lime-300/60 uppercase font-bold">Integ</span>
+                            <div id="outIntegers" class="text-sm font-black text-white"></div>
+                        </div>
+                        <div class="bg-lime-300/10 p-4 rounded-xl border border-lime-300/20 text-center">
+                            <span class="text-[10px] text-lime-300 uppercase font-bold">GCD</span>
+                            <div id="outGCD" class="text-lg font-black text-white"></div>
+                        </div>
+                        <div class="bg-lime-300/10 p-4 rounded-xl border border-lime-300/20 text-center">
+                            <span class="text-[10px] text-lime-300/60 uppercase font-bold">LCM</span>
+                            <div id="outLCM" class="text-sm font-black text-white"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorModal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
+        <div class="glass max-w-xs w-full p-8 text-center rounded-3xl border-red-500/30">
+            <h3 class="text-xl font-bold text-red-500 uppercase tracking-tighter">System Error</h3>
+            <p class="text-slate-500 text-xs mt-2 font-mono">INPUT_REQUIREMENT: POSITIVE_INTEGER_ONLY</p>
+            <button onclick="closeError()" class="mt-8 w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl font-bold transition-all border border-red-500/20">RETRY</button>
+        </div>
+    </div>
+
+    <div id="maxErrorModal" class="fixed inset-0 bg-red-950/95 hidden flex items-center justify-center z-[110] p-4 backdrop-blur-xl">
+        <div class="glass max-w-sm w-full p-10 text-center rounded-3xl border-red-500/50">
+            <h3 class="text-2xl font-black text-white tracking-tighter">SYSTEM_LOCKED</h3>
+            <p class="text-red-200/60 mt-2 text-sm font-mono">SECURITY_TRIGGER: TOO_MANY_ERRORS</p>
+            <div class="mt-8 pt-6 border-t border-white/10 text-[10px] text-red-500 font-mono uppercase tracking-[0.2em]">RELOAD SESSION TO RESET</div>
+        </div>
+    </div>
+
+    <script>
+        // Background Particle Logic
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const mouse = { x: null, y: null };
+
+        window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = Array.from({ length: 70 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4
+            }));
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                
+                const dx = mouse.x - p.x;
+                const dy = mouse.y - p.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 150) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(190, 242, 100, ${0.5 - dist/300})`;
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                }
+                ctx.fillStyle = '#bef264';
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            requestAnimationFrame(animate);
+        }
+
+        initCanvas();
+        animate();
+        window.addEventListener('resize', initCanvas);
+
+        // App Navigation and Logic
+        const choiceModal = document.getElementById('choiceModal');
+        const cardDiv = document.getElementById('cardDivision');
+        const cardEuc = document.getElementById('cardEuclidean');
+        const backBtn = document.getElementById('backBtn');
+        let errorCount = 0;
+        const MAX_ERRORS = 3;
+
+        function switchApp(type) {
+            choiceModal.classList.add('opacity-0', 'pointer-events-none', 'scale-110');
+            backBtn.classList.remove('hidden');
+            if(type === 'division') {
+                cardDiv.classList.remove('hidden');
+                cardEuc.classList.add('hidden');
+            } else {
+                cardEuc.classList.remove('hidden');
+                cardDiv.classList.add('hidden');
+            }
+        }
+
+        function showMenu() {
+            choiceModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-110');
+            cardDiv.classList.add('hidden');
+            cardEuc.classList.add('hidden');
+            backBtn.classList.add('hidden');
+        }
+
+        function showError() { 
+            errorCount++;
+            if (errorCount >= MAX_ERRORS) {
+                document.getElementById('errorModal').classList.add('hidden');
+                document.getElementById('maxErrorModal').classList.remove('hidden');
+                document.querySelectorAll('input, button').forEach(el => el.disabled = true);
+            } else {
+                document.getElementById('errorModal').classList.remove('hidden'); 
+            }
+        }
+
+        function closeError() { document.getElementById('errorModal').classList.add('hidden'); }
+
+        function runDivision() {
+            const a = parseInt(document.getElementById('div1').value);
+            const b = parseInt(document.getElementById('div2').value);
+            if (!a || !b || a < 1 || b < 1) return showError();
+            errorCount = 0;
+            const m = Math.max(a, b), n = Math.min(a, b);
+            const q = Math.floor(m / n), r = m % n;
+            document.getElementById('divResult').classList.remove('hidden');
+            document.getElementById('divStep').textContent = `${m} = ${n}(${q}) + ${r}`;
+            document.getElementById('outInt').textContent = `${a}, ${b}`;
+            document.getElementById('outM').textContent = m;
+            document.getElementById('outN').textContent = n;
+            document.getElementById('outQ').textContent = q;
+            document.getElementById('outR').textContent = r;
+        }
+
+        function runEuclidean() {
+            const a = parseInt(document.getElementById('euc1').value);
+            const b = parseInt(document.getElementById('euc2').value);
+            if (!a || !b || a < 1 || b < 1) return showError();
+            errorCount = 0;
+            let m = Math.max(a, b), n = Math.min(a, b);
+            const originalM = m, originalN = n;
+            let steps = [];
+            let gcd = 0;
+            while (n !== 0) {
+                let q = Math.floor(m / n);
+                let r = m % n;
+                steps.push(`<div class="animate-slide">${m} = ${n}(${q})${r > 0 ? ' + ' + r : ''}</div>`);
+                m = n; n = r;
+                if (n === 0) gcd = m;
+            }
+            document.getElementById('eucResult').classList.remove('hidden');
+            document.getElementById('eucSteps').innerHTML = steps.join('');
+            document.getElementById('outIntegers').textContent = `${originalM}, ${originalN}`;
+            document.getElementById('outGCD').textContent = gcd;
+            document.getElementById('outLCM').textContent = (originalM * originalN) / gcd;
+        }
+    </script>
+</body>
+</html>

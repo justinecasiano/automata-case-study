@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Mathematical Automata Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800;900&display=swap');
+        
+        :root {
+            --accent: #bef264; /* Lime-300 */
+            --bg: #0a0a0a;
+        }
+
+        body { 
+            font-family: 'JetBrains Mono', monospace; 
+            background-color: var(--bg);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-lime {
+            background: var(--accent);
+            color: black;
+            font-weight: 900;
+            transition: all 0.2s ease;
+        }
+
+        .btn-lime:hover {
+            background: #d9f99d;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(190, 242, 100, 0.3);
+        }
+
+        .app-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 25px rgba(190, 242, 100, 0.15);
+            transform: translateY(-4px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6 my-4 md:my-0">
+
+    <canvas id="canvas-bg"></canvas>
+
+    <div class="max-w-5xl w-full space-y-10 animate-fade">
+        <!-- Dashboard Header -->
+        <header class="text-center md:text-left flex flex-col md:flex-row justify-between items-center border-b border-white/10 pb-8 gap-4">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-black tracking-tighter mb-2">
+                    CORE_<span class="text-lime-300">SYSTEM_INDEX</span>
+                </h1>
+                <p class="text-slate-500 text-xs uppercase tracking-[0.3em]">Automata Theory & Mathematical Computing Hub</p>
+            </div>
+            <div class="glass px-4 py-2 rounded-xl text-center md:text-right font-mono text-[11px] text-lime-300/80 border-lime-300/20">
+                STATUS: <span class="text-white font-bold animate-pulse">● ONLINE</span> | FINALS_S2026
+            </div>
+        </header>
+
+        <!-- System Architecture Grid -->
+        <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Module 1: Algorithms & Automata -->
+            <div class="glass p-8 rounded-3xl border-white/5 flex flex-col justify-between transition-all duration-300 app-card group">
+                <div class="space-y-4">
+                    <div class="w-12 h-12 bg-lime-300/10 rounded-xl border border-lime-300/20 flex items-center justify-center text-xl text-lime-300 font-bold">
+                        ÷
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold uppercase tracking-tight group-hover:text-lime-300 transition-colors">Algorithms &amp; Automata</h2>
+                        <span class="text-[10px] text-slate-500 font-mono tracking-wider block mt-1">WORKSPACE_01</span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed pt-2">
+                        Execute formal number divisions and iterative modular systems using the basic Division Framework and the Extended Euclidean structural solver.
+                    </p>
+                    <div class="space-y-1 font-mono text-[11px] text-slate-500 bg-black/30 p-3 rounded-xl border border-white/5">
+                        <div class="flex justify-between"><span>Method A:</span><span class="text-lime-300/70">m = nq + r</span></div>
+                        <div class="flex justify-between"><span>Method B:</span><span class="text-lime-300/70">GCD &amp; LCM Iteration</span></div>
+                    </div>
+                </div>
+                <a href="algorithms-automata.html" class="btn-lime w-full py-3 rounded-xl text-center text-xs tracking-wider mt-8 block">
+                    INITIALIZE_MODULE_01
+                </a>
+            </div>
+
+            <!-- Module 2: Collatz Engine -->
+            <div class="glass p-8 rounded-3xl border-white/5 flex flex-col justify-between transition-all duration-300 app-card group">
+                <div class="space-y-4">
+                    <div class="w-12 h-12 bg-lime-300/10 rounded-xl border border-lime-300/20 flex items-center justify-center text-xl text-lime-300 font-bold">
+                        →
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold uppercase tracking-tight group-hover:text-lime-300 transition-colors">Collatz Engine</h2>
+                        <span class="text-[10px] text-slate-500 font-mono tracking-wider block mt-1">WORKSPACE_02</span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed pt-2">
+                        Analyze data trajectories under the $3x + 1$ conjecture. Visualizes processing maps of mathematical paths toward the terminal loop value.
+                    </p>
+                    <div class="space-y-1 font-mono text-[11px] text-slate-500 bg-black/30 p-3 rounded-xl border border-white/5">
+                        <div class="flex justify-between"><span>If Odd:</span><span class="text-lime-300/70">3x + 1</span></div>
+                        <div class="flex justify-between"><span>If Even:</span><span class="text-lime-300/70">x / 2</span></div>
+                    </div>
+                </div>
+                <a href="collatz.html" class="btn-lime w-full py-3 rounded-xl text-center text-xs tracking-wider mt-8 block">
+                    INITIALIZE_MODULE_02
+                </a>
+            </div>
+
+            <!-- Module 3: Recursion Lab -->
+            <div class="glass p-8 rounded-3xl border-white/5 flex flex-col justify-between transition-all duration-300 app-card group">
+                <div class="space-y-4">
+                    <div class="w-12 h-12 bg-lime-300/10 rounded-xl border border-lime-300/20 flex items-center justify-center text-xl text-lime-300 font-bold">
+                        Σ
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold uppercase tracking-tight group-hover:text-lime-300 transition-colors">Recursion Lab 04</h2>
+                        <span class="text-[10px] text-slate-500 font-mono tracking-wider block mt-1">WORKSPACE_03</span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed pt-2">
+                        Generate linear recurrent numerical streams. Evaluate structural properties across Fibonacci, Lucas, and Tribonacci growth matrices.
+                    </p>
+                    <div class="space-y-1 font-mono text-[11px] text-slate-500 bg-black/30 p-3 rounded-xl border border-white/5">
+                        <div class="flex justify-between"><span>Matrix 1:</span><span class="text-lime-300/70">Fibonacci &amp; Lucas</span></div>
+                        <div class="flex justify-between"><span>Matrix 2:</span><span class="text-lime-300/70">Tribonacci System</span></div>
+                    </div>
+                </div>
+                <a href="recursion.html" class="btn-lime w-full py-3 rounded-xl text-center text-xs tracking-wider mt-8 block">
+                    INITIALIZE_MODULE_03
+                </a>
+            </div>
+
+        </main>
+
+        <!-- System Footer -->
+        <footer class="text-center font-mono text-[10px] text-slate-600 uppercase tracking-widest pt-4">
+            [ AUTOMATA INFRASTRUCTURE FRAMEWORK v2.0.26 — SECURE ENVIRONMENT ]
+        </footer>
+    </div>
+
+    <script>
+        // Background Particle Logic (Synced with your workspace style)
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const mouse = { x: null, y: null };
+
+        window.addEventListener('mousemove', e => { mouse.x = e.x; mouse.y = e.y; });
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = Array.from({ length: 75 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                vx: (Math.random() - 0.5) * 0.35,
+                vy: (Math.random() - 0.5) * 0.35
+            }));
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                
+                const dx = mouse.x - p.x;
+                const dy = mouse.y - p.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 160) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(190, 242, 100, ${0.45 - dist/160})`;
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                }
+                ctx.fillStyle = '#bef264';
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            requestAnimationFrame(animate);
+        }
+
+        initCanvas();
+        animate();
+        window.addEventListener('resize', initCanvas);
+    </script>
+</body>
+</html>
