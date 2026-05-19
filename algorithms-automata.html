@@ -81,7 +81,10 @@
                 </button>
                 <button onclick="switchApp('euclidean')" class="glass p-6 rounded-2xl text-left hover:border-lime-300 transition-all group">
                     <span class="block text-xl font-bold group-hover:text-lime-300 transition-colors uppercase">Euclidean Algorithm</span>
-                    <span class="text-xs text-slate-500 font-mono">Process: GCD & LCM Solver</span>
+                    <span class="text-xs text-slate-500 font-mono">Process: GCD &amp; LCM Solver</span>
+                </button>
+                <button onclick="showMenu()" class="mt-4 text-center text-slate-600 hover:text-red-400 text-xs font-bold tracking-widest transition-colors uppercase">
+                    [ Return to main index ]
                 </button>
             </div>
         </div>
@@ -89,7 +92,7 @@
 
     <div class="max-w-3xl w-full relative">
         <button id="backBtn" onclick="showMenu()" class="hidden absolute -top-12 left-0 text-lime-300 font-bold flex items-center hover:text-white transition-colors text-xs tracking-widest">
-            << BACK_TO_SYSTEM_MENU
+            &lt;&lt; BACK_TO_SYSTEM_MENU
         </button>
 
         <div id="cardDivision" class="hidden space-y-6">
@@ -97,7 +100,7 @@
                 <h3 class="text-lime-300 font-bold text-xs mb-4 tracking-[0.2em]">CORE_CONCEPT</h3>
                 <h2 class="text-2xl font-black mb-4">THE DIVISION ALGORITHM</h2>
                 <p class="text-slate-400 leading-relaxed text-sm">
-                    Let <span class="math-font">m</span> and <span class="math-font">n</span> be positive integers. There are non-negative integers <span class="math-font">q</span> and <span class="math-font">r</span>, where <span class="math-font">0 ≤ r < n</span>, such that:
+                    Let <span class="math-font">m</span> and <span class="math-font">n</span> be positive integers. There are non-negative integers <span class="math-font">q</span> and <span class="math-font">r</span>, where $0 \le r < n$, such that:
                 </p>
                 <div class="my-6 text-center text-3xl font-bold text-lime-300 bg-lime-300/5 py-6 rounded-2xl border border-lime-300/20">
                     m = nq + r
@@ -251,11 +254,9 @@
             }
         }
 
+        // REDIRECT TO CENTRAL LANDING PAGE CODE ADDED HERE
         function showMenu() {
-            choiceModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-110');
-            cardDiv.classList.add('hidden');
-            cardEuc.classList.add('hidden');
-            backBtn.classList.add('hidden');
+            window.location.href = 'index.html';
         }
 
         function showError() { 

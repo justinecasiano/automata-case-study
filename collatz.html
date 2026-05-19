@@ -50,20 +50,25 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center py-12 px-6">
+<body class="min-h-screen flex flex-col items-center py-16 px-6">
 
     <canvas id="canvas-bg"></canvas>
 
-    <div class="max-w-5xl w-full space-y-10">
+    <div class="max-w-5xl w-full space-y-10 relative">
         
-        <div class="glass rounded-3xl p-10 shadow-2xl relative overflow-hidden">
+        <!-- Navigation Link Back to Central Hub -->
+        <button id="backBtn" onclick="showMenu()" class="absolute -top-10 left-0 text-lime-300 font-bold flex items-center hover:text-white transition-colors text-xs tracking-widest">
+            &lt;&lt; BACK_TO_SYSTEM_MENU
+        </button>
+        
+        <div class="glass rounded-3xl p-10 shadow-2xl relative overflow-hidden mt-4">
             <div class="absolute top-0 right-0 w-32 h-32 bg-lime-300/10 blur-3xl rounded-full -mr-16 -mt-16"></div>
             
             <header class="mb-12">
                 <h1 class="text-4xl font-bold tracking-tighter mb-2">
                     COLLATZ_<span class="text-lime-300">ENGINE</span>
                 </h1>
-                <p class="text-slate-500 text-sm uppercase tracking-[0.2em]">Sequence computation & visualization</p>
+                <p class="text-slate-500 text-sm uppercase tracking-[0.2em]">Sequence computation &amp; visualization</p>
             </header>
 
             <div class="flex flex-col sm:flex-row gap-4 mb-12">
@@ -170,6 +175,11 @@
         initCanvas();
         animate();
         window.addEventListener('resize', initCanvas);
+
+        // --- NAVIGATION ROUTING ---
+        function showMenu() {
+            window.location.href = 'index.html';
+        }
 
         // --- COLLATZ LOGIC ---
         function runCollatz() {
