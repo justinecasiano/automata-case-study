@@ -69,7 +69,7 @@
         <div class="glass p-10 rounded-3xl max-w-xl w-full border-lime-300/20">
             <header class="mb-8 text-center border-b border-white/10 pb-6">
                 <p class="text-lime-300 text-[10px] tracking-[0.4em] mb-2 uppercase">Laboratory Group Activity</p>
-                <h1 class="text-3xl font-black tracking-tighter mb-2">RECURSION_<span class="text-lime-300">LAB_04</span></h1>
+                <h1 class="text-3xl font-black tracking-tighter mb-2"><span class="text-lime-300">RECURSION</span></h1>
                 <div class="grid grid-cols-2 gap-4 mt-4 text-[10px] text-slate-500 uppercase font-bold">
                     <div class="text-left">AUTOMATA THEORY</div>
                     <div class="text-right">FINALS_S2026</div>
@@ -126,7 +126,7 @@
                 <div class="flex flex-col space-y-4">
                     <div class="flex flex-col">
                         <label class="text-[10px] text-slate-500 font-bold mb-2 ml-1 tracking-widest">INPUT_NUMBER_OF_TERMS</label>
-                        <input type="number" id="numInput" placeholder="ENTER_VALUE" class="bg-black/50 border border-white/10 px-6 py-4 rounded-xl focus:border-lime-300 outline-none text-lime-300 font-black text-xl">
+                        <input type="number" id="numInput" step="1" placeholder="ENTER_VALUE" class="bg-black/50 border border-white/10 px-6 py-4 rounded-xl focus:border-lime-300 outline-none text-lime-300 font-black text-xl">
                     </div>
                     <button onclick="calculateSequence()" class="btn-lime w-full py-4 rounded-xl text-sm tracking-[0.2em]">GENERATE_SEQUENCE</button>
                 </div>
@@ -152,6 +152,15 @@
         </div>
     </div>
 
+    <!-- System Security Lockout Modal -->
+    <div id="maxErrorModal" class="fixed inset-0 bg-red-950/95 hidden flex items-center justify-center z-[110] p-4 backdrop-blur-xl">
+        <div class="glass max-w-sm w-full p-10 text-center rounded-3xl border-red-500/50">
+            <h3 class="text-2xl font-black text-white tracking-tighter">SYSTEM_LOCKED</h3>
+            <p class="text-red-200/60 mt-2 text-sm font-mono">SECURITY_TRIGGER: TOO_MANY_ERRORS</p>
+            <div class="mt-8 pt-6 border-t border-white/10 text-[10px] text-red-500 font-mono uppercase tracking-[0.2em]">RELOAD SESSION TO RESET</div>
+        </div>
+    </div>
+
     <script>
         // CONFIGURATION
         const sequenceData = {
@@ -160,6 +169,7 @@
                 desc: "The Fibonacci sequence is defined by the recurrence relation where each number is the sum of the two preceding ones, starting from base values 0 and 1.",
                 walkthrough: "Step 1: Initialize an array with base items sequence[0] = 0 and sequence[1] = 1.\nStep 2: Loop iteratively from index i = 2 up to the target value (n).\nStep 3: Calculate each subsequent term using the evaluation: sequence[i] = sequence[i - 1] + sequence[i - 2].\nStep 4: Push the generated term into the stream and repeat.",
                 min: 3,
+                errorMsg: "INVALID_INPUT: For Fibonacci numbers the valid input is greater than 2.",
                 formula: "F(n) = F(n-1) + F(n-2)"
             },
             lucas: {
@@ -167,6 +177,7 @@
                 desc: "Similar to Fibonacci, the Lucas sequence uses the exact same recursive summation pattern but initiates with alternative companion seed parameters L(0)=2 and L(1)=1.",
                 walkthrough: "Step 1: Initialize an array with base items sequence[0] = 2 and sequence[1] = 1.\nStep 2: Loop iteratively from index i = 2 up to the target value (n).\nStep 3: Calculate each subsequent term using the evaluation: sequence[i] = sequence[i - 1] + sequence[i - 2].\nStep 4: Push the generated term into the stream and repeat.",
                 min: 3,
+                errorMsg: "INVALID_INPUT: For Lucas numbers the valid input is greater than 2.",
                 formula: "L(n) = L(n-1) + L(n-2)"
             },
             tribonacci: {
@@ -174,6 +185,7 @@
                 desc: "The Tribonacci numbers are an advanced generalization of the classic Fibonacci matrix, where each generated element is the sum of the preceding three terms.",
                 walkthrough: "Step 1: Initialize an array with base items sequence[0] = 0, sequence[1] = 0, and sequence[2] = 1.\nStep 2: Loop iteratively from index i = 3 up to the target value (n).\nStep 3: Calculate each subsequent term using the evaluation: sequence[i] = sequence[i - 1] + sequence[i - 2] + sequence[i - 3].\nStep 4: Push the generated term into the stream and repeat.",
                 min: 4,
+                errorMsg: "INVALID_INPUT: For Tribonacci numbers the valid input is greater than 3.",
                 formula: "T(n) = T(n-1) + T(n-2) + T(n-3)"
             }
         };
@@ -251,21 +263,42 @@
             window.location.href = 'index.html';
         }
 
+        // --- ERROR LOCKOUT LOGIC SYSTEM ---
+        let errorCount = 0;
+        const MAX_ERRORS = 3;
+
         function showError(txt) {
-            document.getElementById('errorText').innerText = txt;
-            document.getElementById('errorModal').classList.remove('hidden');
+            errorCount++;
+            if (errorCount >= MAX_ERRORS) {
+                document.getElementById('errorModal').classList.add('hidden');
+                document.getElementById('maxErrorModal').classList.remove('hidden');
+                document.querySelectorAll('input, button').forEach(el => el.disabled = true);
+            } else {
+                document.getElementById('errorText').innerText = txt;
+                document.getElementById('errorModal').classList.remove('hidden');
+            }
         }
 
         function closeError() { document.getElementById('errorModal').classList.add('hidden'); }
 
         // COMPUTATION LOGIC
         function calculateSequence() {
-            const n = parseInt(document.getElementById('numInput').value);
+            const rawValue = document.getElementById('numInput').value;
+            const n = parseFloat(rawValue);
             const data = sequenceData[currentMode];
 
-            if (isNaN(n) || n < data.min) {
-                return showError(`INVALID_INPUT: For ${data.title}, value must be ≥ ${data.min}`);
+            // Primary absolute integer and decimal validation tracking
+            if (isNaN(n) || n % 1 !== 0) {
+                return showError("INVALID_INPUT: Decimals are not permitted. Please enter a whole integer.");
             }
+
+            // Boundary validation check updated to target clean phrasing
+            if (n < data.min) {
+                return showError(data.errorMsg);
+            }
+
+            // Reset error counter on completely successful calculations
+            errorCount = 0;
 
             let result = [];
             

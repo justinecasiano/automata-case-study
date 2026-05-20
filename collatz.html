@@ -75,10 +75,12 @@
                 <input 
                     type="number" 
                     id="initialValue" 
+                    step="1"
                     placeholder="ENTER ODD INTEGER" 
                     class="bg-black/50 border border-white/10 rounded-lg px-6 py-4 text-xl w-full focus:border-lime-300 outline-none transition-all text-lime-300"
                 />
                 <button 
+                    id="executeBtn"
                     onclick="runCollatz()"
                     class="bg-lime-300 hover:bg-lime-400 text-black font-black px-8 py-4 rounded-lg transition-all active:scale-95 whitespace-nowrap"
                 >
@@ -86,12 +88,7 @@
                 </button>
             </div>
 
-            <div id="error" class="hidden text-red-400 font-bold mb-6 flex items-center gap-2">
-                <span class="w-2 h-2 bg-red-400 rounded-full animate-ping"></span>
-                INVALID_INPUT: EXPECTING POSITIVE ODD INTEGER.
-            </div>
-
-            <div id="output" class="hidden flex flex-wrap gap-3 justify-start items-center"></div>
+            <div id="output" class="hidden flex flex-wrap gap-x-1 gap-y-3 justify-start items-center font-mono text-lg"></div>
         </div>
 
         <section class="grid md:grid-cols-2 gap-8">
@@ -124,6 +121,24 @@
                 </div>
             </div>
         </section>
+    </div>
+
+    <!-- System Validation Error Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
+        <div class="glass max-w-xs w-full p-8 text-center rounded-3xl border-red-500/30">
+            <h3 class="text-xl font-bold text-red-500 uppercase tracking-tighter">System Error</h3>
+            <p id="errorText" class="text-slate-500 text-xs mt-2 font-mono italic"></p>
+            <button onclick="closeError()" class="mt-8 w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl font-bold transition-all border border-red-500/20">RETRY</button>
+        </div>
+    </div>
+
+    <!-- System Security Lockout Modal -->
+    <div id="maxErrorModal" class="fixed inset-0 bg-red-950/95 hidden flex items-center justify-center z-[110] p-4 backdrop-blur-xl">
+        <div class="glass max-w-sm w-full p-10 text-center rounded-3xl border-red-500/50">
+            <h3 class="text-2xl font-black text-white tracking-tighter">SYSTEM_LOCKED</h3>
+            <p class="text-red-200/60 mt-2 text-sm font-mono">SECURITY_TRIGGER: TOO_MANY_ERRORS</p>
+            <div class="mt-8 pt-6 border-t border-white/10 text-[10px] text-red-500 font-mono uppercase tracking-[0.2em]">RELOAD SESSION TO RESET</div>
+        </div>
     </div>
 
     <script>
@@ -181,20 +196,56 @@
             window.location.href = 'index.html';
         }
 
+        // --- ERROR LOCKOUT LOGIC SYSTEM ---
+        let errorCount = 0;
+        const MAX_ERRORS = 3;
+
+        function showError(txt) {
+            errorCount++;
+            if (errorCount >= MAX_ERRORS) {
+                document.getElementById('errorModal').classList.add('hidden');
+                document.getElementById('maxErrorModal').classList.remove('hidden');
+                document.querySelectorAll('input, button').forEach(el => el.disabled = true);
+            } else {
+                document.getElementById('errorText').innerText = txt;
+                document.getElementById('errorModal').classList.remove('hidden');
+            }
+        }
+
+        function closeError() { 
+            document.getElementById('errorModal').classList.add('hidden'); 
+        }
+
         // --- COLLATZ LOGIC ---
         function runCollatz() {
             const input = document.getElementById('initialValue');
             const output = document.getElementById('output');
-            const error = document.getElementById('error');
-            let val = parseInt(input.value);
+            
+            let rawValue = input.value;
+            let n = parseFloat(rawValue);
+            let val = parseInt(rawValue);
 
-            if (isNaN(val) || val <= 0 || val % 2 === 0) {
-                error.classList.remove('hidden');
+            // 1. Decimal / Float Validation Check
+            if (isNaN(n) || n % 1 !== 0) {
                 output.classList.add('hidden');
-                return;
+                return showError("INVALID_INPUT: Decimals are not permitted. Please enter a whole integer.");
             }
 
-            error.classList.add('hidden');
+            // 2. Negative Value & Zero Boundary Validation Check
+            if (val <= 0) {
+                output.classList.add('hidden');
+                return showError("INVALID_INPUT: System requires a positive integer value strictly greater than 0.");
+            }
+
+            // 3. Even Number Operational Check
+            if (val % 2 === 0) {
+                output.classList.add('hidden');
+                return showError("INVALID_INPUT: System requires a positive ODD integer value.");
+            }
+
+            // Reset error counter on completely successful calculations
+            errorCount = 0;
+            
             output.classList.remove('hidden');
             output.innerHTML = '';
 
@@ -214,14 +265,14 @@
                 const box = document.createElement('div');
                 box.className = `px-3 py-1 rounded border ${num === 1 ? 'bg-lime-300 text-black border-lime-300 font-black' : 'border-white/20 text-white'}`;
                 box.innerText = num;
-                
                 node.appendChild(box);
 
+                // Comma separator processing
                 if (i < sequence.length - 1) {
-                    const arrow = document.createElement('span');
-                    arrow.className = 'mx-2 text-slate-700 font-bold text-xs';
-                    arrow.innerText = '>>';
-                    node.appendChild(arrow);
+                    const comma = document.createElement('span');
+                    comma.className = 'text-slate-500 font-bold mr-1';
+                    comma.innerText = ',';
+                    node.appendChild(comma);
                 }
                 
                 output.appendChild(node);
